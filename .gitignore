@@ -2,3 +2,4 @@
 /target
 /Cargo.lock
 .*.sw*
+/src/rdata/mod.rs
