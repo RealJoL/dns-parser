@@ -102,18 +102,18 @@ impl<'a> Name<'a> {
         if self.labels.len() >= 2 && self.labels[0] >> 6 == 0b11 {
             let pointer = (u16::from_be_bytes([self.labels[0], self.labels[1]])
                 & !0b1100_0000_0000_0000) as usize;
-            let len = self.original[pointer] as usize;
+            let len = *self.original.get(pointer).unwrap_or_else(||panic!("{:?}", self.original)) as usize;
             NameBytes {
                 original: self.original,
-                remaining_labels: &self.original[pointer + 1 + len..],
-                current_label: self.original[pointer + 1..pointer + 1 + len].iter().peekable(),
+                remaining_labels: &self.original.get(pointer + 1 + len..).unwrap_or_else(|| panic!("{:?}", self.original)),
+                current_label: self.original.get(pointer + 1..pointer + 1 + len).unwrap_or_else(|| panic!("{:?}", self.original)).iter().peekable(),
             }
         } else if self.labels.len() >= 1 {
             let len = self.labels[0] as usize;
             NameBytes {
                 original: self.original,
-                remaining_labels: &self.labels[1 + len..],
-                current_label: self.labels[1..1 + len].iter().peekable(),
+                remaining_labels: &self.labels.get(1 + len..).unwrap_or_else(|| panic!("{:?}", self.original)),
+                current_label: self.labels.get(1..1 + len).unwrap_or_else(|| panic!("{:?}", self.original)).iter().peekable(),
             }
         } else {
             // self.labels is empty
@@ -191,6 +191,8 @@ impl<'a> fmt::Display for Name<'a> {
         }
     }
 }
+
+
 impl<'a> fmt::Debug for Name<'a> {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         fmt.debug_tuple("Name")
