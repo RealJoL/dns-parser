@@ -1,6 +1,6 @@
 use byteorder::{ByteOrder, BigEndian, WriteBytesExt};
 
-use {Opcode, ResponseCode, Header, QueryType, QueryClass};
+use crate::{Opcode, ResponseCode, Header, QueryType, QueryClass};
 
 /// Allows to build a DNS packet
 ///
@@ -99,8 +99,8 @@ impl Builder {
 
 #[cfg(test)]
 mod test {
-    use QueryType as QT;
-    use QueryClass as QC;
+    use crate::QueryType as QT;
+    use crate::QueryClass as QC;
     use super::Builder;
 
     #[test]

@@ -1,6 +1,6 @@
 use std::net::Ipv4Addr;
 
-use Error;
+use crate::Error;
 use byteorder::{BigEndian, ByteOrder};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]

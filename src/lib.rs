@@ -30,10 +30,10 @@ mod builder;
 
 pub mod rdata;
 
-pub use enums::{Type, QueryType, Class, QueryClass, ResponseCode, Opcode};
-pub use structs::{Question, ResourceRecord, Packet};
-pub use name::{Name};
-pub use error::{Error};
-pub use header::{Header};
-pub use rdata::{RData};
-pub use builder::{Builder};
+pub use crate::enums::{Type, QueryType, Class, QueryClass, ResponseCode, Opcode};
+pub use crate::structs::{Question, ResourceRecord, Packet};
+pub use crate::name::{Name};
+pub use crate::error::{Error};
+pub use crate::header::{Header};
+pub use crate::rdata::{RData};
+pub use crate::builder::{Builder};

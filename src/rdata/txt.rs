@@ -1,4 +1,4 @@
-use Error;
+use crate::Error;
 
 #[derive(Debug, Clone)]
 pub struct Record<'a> {
@@ -62,13 +62,13 @@ mod test {
 
     use std::str::from_utf8;
 
-    use {Packet, Header};
-    use Opcode::*;
-    use ResponseCode::NoError;
-    use QueryType as QT;
-    use QueryClass as QC;
-    use Class as C;
-    use RData;
+    use crate::{Packet, Header};
+    use crate::Opcode::*;
+    use crate::ResponseCode::NoError;
+    use crate::QueryType as QT;
+    use crate::QueryClass as QC;
+    use crate::Class as C;
+    use crate::RData;
 
     #[test]
     fn parse_response_multiple_strings() {

@@ -1,6 +1,6 @@
 use std::net::Ipv6Addr;
 
-use Error;
+use crate::Error;
 use byteorder::{BigEndian, ByteOrder};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -32,13 +32,13 @@ impl<'a> super::Record<'a> for Record {
 #[cfg(test)]
 mod test {
 
-    use {Packet, Header};
-    use Opcode::*;
-    use ResponseCode::NoError;
-    use QueryType as QT;
-    use QueryClass as QC;
-    use Class as C;
-    use RData;
+    use crate::{Packet, Header};
+    use crate::Opcode::*;
+    use crate::ResponseCode::NoError;
+    use crate::QueryType as QT;
+    use crate::QueryClass as QC;
+    use crate::Class as C;
+    use crate::RData;
     use super::*;
 
     #[test]

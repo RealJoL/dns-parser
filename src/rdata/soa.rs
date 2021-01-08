@@ -1,4 +1,4 @@
-use {Name, Error};
+use crate::{Name, Error};
 use byteorder::{BigEndian, ByteOrder};
 
 /// The SOA (Start of Authority) record
@@ -19,9 +19,9 @@ impl<'a> super::Record<'a> for Record<'a> {
 
     fn parse(rdata: &'a [u8], original: &'a [u8]) -> super::RDataResult<'a> {
         let mut pos = 0;
-        let primary_name_server = try!(Name::scan(rdata, original));
+        let primary_name_server = r#try!(Name::scan(rdata, original));
         pos += primary_name_server.byte_len();
-        let mailbox = try!(Name::scan(&rdata[pos..], original));
+        let mailbox = r#try!(Name::scan(&rdata[pos..], original));
         pos += mailbox.byte_len();
         if rdata[pos..].len() < 20 {
             return Err(Error::WrongRdataLength);
@@ -42,13 +42,13 @@ impl<'a> super::Record<'a> for Record<'a> {
 #[cfg(test)]
 mod test {
 
-    use {Packet, Header};
-    use Opcode::*;
-    use ResponseCode::NameError;
-    use QueryType as QT;
-    use QueryClass as QC;
-    use Class as C;
-    use RData;
+    use crate::{Packet, Header};
+    use crate::Opcode::*;
+    use crate::ResponseCode::NameError;
+    use crate::QueryType as QT;
+    use crate::QueryClass as QC;
+    use crate::Class as C;
+    use crate::RData;
 
      #[test]
      fn parse_response() {

@@ -2,9 +2,9 @@ use std::i32;
 
 use byteorder::{BigEndian, ByteOrder};
 
-use {Header, Packet, Error, Question, Name, QueryType, QueryClass};
-use {Type, Class, ResourceRecord, RData};
-use rdata::opt::Record as Opt;
+use crate::{Header, Packet, Error, Question, Name, QueryType, QueryClass};
+use crate::{Type, Class, ResourceRecord, RData};
+use crate::rdata::opt::Record as Opt;
 
 const OPT_RR_START: [u8; 3] = [0, 0, 41];
 
@@ -12,20 +12,20 @@ impl<'a> Packet<'a> {
     /// Parse a full DNS Packet and return a structure that has all the
     /// data borrowed from the passed buffer.
     pub fn parse(data: &[u8]) -> Result<Packet, Error> {
-        let header = try!(Header::parse(data));
+        let header = r#try!(Header::parse(data));
         let mut offset = Header::size();
         let mut questions = Vec::with_capacity(header.questions as usize);
         for _ in 0..header.questions {
-            let name = try!(Name::scan(&data[offset..], data));
+            let name = r#try!(Name::scan(&data[offset..], data));
             offset += name.byte_len();
             if offset + 4 > data.len() {
                 return Err(Error::UnexpectedEOF);
             }
-            let qtype = try!(QueryType::parse(
+            let qtype = r#try!(QueryType::parse(
                 BigEndian::read_u16(&data[offset..offset+2])));
             offset += 2;
 
-            let (prefer_unicast, qclass) = try!(parse_qclass_code(
+            let (prefer_unicast, qclass) = r#try!(parse_qclass_code(
                 BigEndian::read_u16(&data[offset..offset+2])));
             offset += 2;
 
@@ -38,23 +38,23 @@ impl<'a> Packet<'a> {
         }
         let mut answers = Vec::with_capacity(header.answers as usize);
         for _ in 0..header.answers {
-            answers.push(try!(parse_record(data, &mut offset)));
+            answers.push(r#try!(parse_record(data, &mut offset)));
         }
         let mut nameservers = Vec::with_capacity(header.nameservers as usize);
         for _ in 0..header.nameservers {
-            nameservers.push(try!(parse_record(data, &mut offset)));
+            nameservers.push(r#try!(parse_record(data, &mut offset)));
         }
         let mut additional = Vec::with_capacity(header.additional as usize);
         let mut opt = None;
         for _ in 0..header.additional {
             if offset + 3 <= data.len() && data[offset..offset+3] == OPT_RR_START {
                 if opt.is_none() {
-                    opt = Some(try!(parse_opt_record(data, &mut offset)));
+                    opt = Some(r#try!(parse_opt_record(data, &mut offset)));
                 } else {
                     return Err(Error::AdditionalOPT);
                 }
             } else {
-                additional.push(try!(parse_record(data, &mut offset)));
+                additional.push(r#try!(parse_record(data, &mut offset)));
             }
         }
         Ok(Packet {
@@ -72,7 +72,7 @@ fn parse_qclass_code(value: u16) -> Result<(bool, QueryClass), Error> {
     let prefer_unicast = value & 0x8000 == 0x8000;
     let qclass_code = value & 0x7FFF;
 
-    let qclass = try!(QueryClass::parse(qclass_code));
+    let qclass = r#try!(QueryClass::parse(qclass_code));
     Ok((prefer_unicast, qclass))
 }
 
@@ -80,23 +80,23 @@ fn parse_class_code(value: u16) -> Result<(bool, Class), Error> {
     let is_unique = value & 0x8000 == 0x8000;
     let class_code = value & 0x7FFF;
 
-    let cls = try!(Class::parse(class_code));
+    let cls = r#try!(Class::parse(class_code));
     Ok((is_unique, cls))
 }
 
 // Generic function to parse answer, nameservers, and additional records.
 fn parse_record<'a>(data: &'a [u8], offset: &mut usize) -> Result<ResourceRecord<'a>, Error> {
-    let name = try!(Name::scan(&data[*offset..], data));
+    let name = r#try!(Name::scan(&data[*offset..], data));
     *offset += name.byte_len();
     if *offset + 10 > data.len() {
         return Err(Error::UnexpectedEOF);
     }
-    let typ = try!(Type::parse(
+    let typ = r#try!(Type::parse(
         BigEndian::read_u16(&data[*offset..*offset+2])));
     *offset += 2;
 
     let class_code = BigEndian::read_u16(&data[*offset..*offset+2]);
-    let (multicast_unique, cls) = try!(parse_class_code(class_code));
+    let (multicast_unique, cls) = r#try!(parse_class_code(class_code));
     *offset += 2;
 
     let mut ttl = BigEndian::read_u32(&data[*offset..*offset+4]);
@@ -109,7 +109,7 @@ fn parse_record<'a>(data: &'a [u8], offset: &mut usize) -> Result<ResourceRecord
     if *offset + rdlen > data.len() {
         return Err(Error::UnexpectedEOF);
     }
-    let data = try!(RData::parse(typ,
+    let data = r#try!(RData::parse(typ,
         &data[*offset..*offset+rdlen], data));
     *offset += rdlen;
     Ok(ResourceRecord {
@@ -127,7 +127,7 @@ fn parse_opt_record<'a>(data: &'a [u8], offset: &mut usize) -> Result<Opt<'a>, E
         return Err(Error::UnexpectedEOF);
     }
     *offset += 1;
-    let typ = try!(Type::parse(
+    let typ = r#try!(Type::parse(
         BigEndian::read_u16(&data[*offset..*offset+2])));
     if typ != Type::OPT {
         return Err(Error::InvalidType(typ as u16));
@@ -146,7 +146,7 @@ fn parse_opt_record<'a>(data: &'a [u8], offset: &mut usize) -> Result<Opt<'a>, E
     if *offset + rdlen > data.len() {
         return Err(Error::UnexpectedEOF);
     }
-    let data = try!(RData::parse(typ,
+    let data = r#try!(RData::parse(typ,
         &data[*offset..*offset+rdlen], data));
     *offset += rdlen;
 
@@ -163,13 +163,13 @@ fn parse_opt_record<'a>(data: &'a [u8], offset: &mut usize) -> Result<Opt<'a>, E
 mod test {
 
     use std::net::Ipv4Addr;
-    use {Packet, Header};
-    use Opcode::*;
-    use ResponseCode::NoError;
-    use QueryType as QT;
-    use QueryClass as QC;
-    use Class as C;
-    use RData;
+    use crate::{Packet, Header};
+    use crate::Opcode::*;
+    use crate::ResponseCode::NoError;
+    use crate::QueryType as QT;
+    use crate::QueryClass as QC;
+    use crate::Class as C;
+    use crate::RData;
 
     #[test]
     fn parse_example_query() {

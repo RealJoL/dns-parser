@@ -1,5 +1,5 @@
-use {QueryType, QueryClass, Name, Class, Header, RData};
-use rdata::opt;
+use crate::{QueryType, QueryClass, Name, Class, Header, RData};
+use crate::rdata::opt;
 
 
 /// Parsed DNS packet

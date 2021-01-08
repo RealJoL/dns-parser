@@ -1,6 +1,6 @@
-use {Error};
-use rdata::Record;
-use rdata::*;
+use crate::{Error};
+use crate::rdata::Record;
+use crate::rdata::*;
 
 /// The TYPE value according to RFC 1035
 ///

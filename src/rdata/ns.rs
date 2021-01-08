@@ -1,4 +1,4 @@
-use Name;
+use crate::Name;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Record<'a>(pub Name<'a>);
@@ -24,13 +24,13 @@ impl<'a> super::Record<'a> for Record<'a> {
 #[cfg(test)]
 mod test {
 
-    use {Packet, Header};
-    use Opcode::*;
-    use ResponseCode::NoError;
-    use QueryType as QT;
-    use QueryClass as QC;
-    use Class as C;
-    use RData;
+    use crate::{Packet, Header};
+    use crate::Opcode::*;
+    use crate::ResponseCode::NoError;
+    use crate::QueryType as QT;
+    use crate::QueryClass as QC;
+    use crate::Class as C;
+    use crate::RData;
 
     #[test]
     fn parse_response() {

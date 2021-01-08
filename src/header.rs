@@ -1,6 +1,6 @@
 use byteorder::{BigEndian, ByteOrder};
 
-use {Error, ResponseCode, Opcode};
+use crate::{Error, ResponseCode, Opcode};
 
 mod flag {
     pub const QUERY:               u16 = 0b1000_0000_0000_0000;
@@ -103,9 +103,9 @@ impl Header {
 #[cfg(test)]
 mod test {
 
-    use {Header};
-    use Opcode::*;
-    use ResponseCode::NoError;
+    use crate::{Header};
+    use crate::Opcode::*;
+    use crate::ResponseCode::NoError;
 
     #[test]
     fn parse_example_query() {

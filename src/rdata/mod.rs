@@ -26,7 +26,7 @@ pub mod srv;
 pub mod txt;
 pub mod wks;
 
-use {Type, Error};
+use crate::{Type, Error};
 
 pub use self::a::Record as A;
 pub use self::aaaa::Record as Aaaa;
