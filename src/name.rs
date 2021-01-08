@@ -161,7 +161,7 @@ impl<'a> Iterator for NameBytes<'a> {
 }
 
 impl<'a> fmt::Display for Name<'a> {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         let data = self.labels;
         let original = self.original;
         let mut pos = 0;
@@ -194,7 +194,7 @@ impl<'a> fmt::Display for Name<'a> {
 
 
 impl<'a> fmt::Debug for Name<'a> {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt.debug_tuple("Name")
         .field(&format!("{}", self))
         .finish()

@@ -1,4 +1,4 @@
-extern crate dns_parser;
+
 
 use std::env;
 use std::error::Error;

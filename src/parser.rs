@@ -11,7 +11,7 @@ const OPT_RR_START: [u8; 3] = [0, 0, 41];
 impl<'a> Packet<'a> {
     /// Parse a full DNS Packet and return a structure that has all the
     /// data borrowed from the passed buffer.
-    pub fn parse(data: &[u8]) -> Result<Packet, Error> {
+    pub fn parse(data: &[u8]) -> Result<Packet<'_>, Error> {
         let header = r#try!(Header::parse(data));
         let mut offset = Header::size();
         let mut questions = Vec::with_capacity(header.questions as usize);
