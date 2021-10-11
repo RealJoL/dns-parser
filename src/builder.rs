@@ -1,6 +1,6 @@
-use byteorder::{ByteOrder, BigEndian, WriteBytesExt};
+use byteorder::{BigEndian, ByteOrder, WriteBytesExt};
 
-use crate::{Opcode, ResponseCode, Header, QueryType, QueryClass};
+use crate::{Header, Opcode, QueryClass, QueryType, ResponseCode};
 
 /// Allows to build a DNS packet
 ///
@@ -19,7 +19,7 @@ impl Builder {
     pub fn new_query(id: u16, recursion: bool) -> Builder {
         let mut buf = Vec::with_capacity(512);
         let head = Header {
-            id: id,
+            id,
             query: true,
             opcode: Opcode::StandardQuery,
             authoritative: false,
@@ -36,7 +36,7 @@ impl Builder {
         };
         buf.extend([0u8; 12].iter());
         head.write(&mut buf[..12]);
-        Builder { buf: buf }
+        Builder { buf }
     }
     /// Adds a question to the packet
     ///
@@ -45,22 +45,27 @@ impl Builder {
     /// * Answers, nameservers or additional section has already been written
     /// * There are already 65535 questions in the buffer.
     /// * When name is invalid
-    pub fn add_question(&mut self, qname: &str, prefer_unicast: bool,
-        qtype: QueryType, qclass: QueryClass)
-        -> &mut Builder
-    {
+    pub fn add_question(
+        &mut self,
+        qname: &str,
+        prefer_unicast: bool,
+        qtype: QueryType,
+        qclass: QueryClass,
+    ) -> &mut Builder {
         if &self.buf[6..12] != b"\x00\x00\x00\x00\x00\x00" {
             panic!("Too late to add a question");
         }
         self.write_name(qname);
         self.buf.write_u16::<BigEndian>(qtype as u16).unwrap();
         let prefer_unicast: u16 = if prefer_unicast { 0x8000 } else { 0x0000 };
-        self.buf.write_u16::<BigEndian>(qclass as u16 | prefer_unicast).unwrap();
+        self.buf
+            .write_u16::<BigEndian>(qclass as u16 | prefer_unicast)
+            .unwrap();
         let oldq = BigEndian::read_u16(&self.buf[4..6]);
         if oldq == 65535 {
             panic!("Too many questions");
         }
-        BigEndian::write_u16(&mut self.buf[4..6], oldq+1);
+        BigEndian::write_u16(&mut self.buf[4..6], oldq + 1);
         self
     }
     fn write_name(&mut self, name: &str) {
@@ -86,7 +91,7 @@ impl Builder {
     /// appropriate.
     // TODO(tailhook) does the truncation make sense for TCP, and how
     // to treat it for EDNS0?
-    pub fn build(mut self) -> Result<Vec<u8>,Vec<u8>> {
+    pub fn build(mut self) -> Result<Vec<u8>, Vec<u8>> {
         // TODO(tailhook) optimize labels
         if self.buf.len() > 512 {
             Header::set_truncated(&mut self.buf[..12]);
@@ -99,9 +104,9 @@ impl Builder {
 
 #[cfg(test)]
 mod test {
-    use crate::QueryType as QT;
-    use crate::QueryClass as QC;
     use super::Builder;
+    use crate::QueryClass as QC;
+    use crate::QueryType as QT;
 
     #[test]
     fn build_query() {

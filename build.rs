@@ -20,60 +20,50 @@ fn main() {
 
     let mut imports = String::new();
 
-    let mut typ = format!(
-        r#"
+    let mut typ = r#"
         /// The TYPE value according to RFC 1035
         #[derive(Debug, PartialEq, Eq, Clone, Copy)]
-        pub enum Type {{
-    "#
-    );
+        pub enum Type {
+    "#.to_string();
 
-    let mut typ_impl = format!(
-        r#"
-        impl Type {{
+    let mut typ_impl = r#"
+        impl Type {
             /// Parse a type code
-            pub fn parse(code: u16) -> Result<Type, Error> {{
+            pub fn parse(code: u16) -> Result<Type, Error> {
                 use self::Type::*;
-                match code as isize {{
-    "#
-    );
+                match code as isize {
+    "#.to_string();
 
-    let mut qtyp = format!(
-        r#"
+    let mut qtyp = r#"
         /// The QTYPE value according to RFC 1035
         #[derive(Debug, PartialEq, Eq, Clone, Copy)]
-        pub enum QueryType {{
-    "#
-    );
+        pub enum QueryType {
+    "#.to_string();
 
-    let mut qtyp_impl = format!(
-        r#"
-        impl QueryType {{
+    let mut qtyp_impl = r#"
+        impl QueryType {
             /// Parse a query type code
-            pub fn parse(code: u16) -> Result<QueryType, Error> {{
+            pub fn parse(code: u16) -> Result<QueryType, Error> {
                 use self::QueryType::*;
-                match code as isize {{
-    "#
-    );
+                match code as isize {
+    "#.to_string();
 
-    let mut rdata_impl = format!(
-        r#"
-        impl<'a> RData<'a> {{
+    let mut rdata_impl = r#"
+        impl<'a> RData<'a> {
             /// Parse an RR data and return RData enumeration
-            pub fn parse(typ: Type, rdata: &'a [u8], original: &'a [u8]) -> RDataResult<'a> {{
-                match typ {{
-    "#
-    );
+            pub fn parse(typ: Type, rdata: &'a [u8], original: &'a [u8]) -> RDataResult<'a> {
+                match typ {
+    "#.to_string();
 
     for entry in entries {
         let path = entry.unwrap();
         if path.file_type().unwrap().is_file() {
             let file_name = path.file_name().into_string().unwrap();
             if file_name.ends_with(".rs") && file_name != "mod.rs" && file_name != "config.rs" {
-                let lower = file_name.trim_right_matches(".rs");
+                let lower = file_name.trim_end_matches(".rs");
                 let upper = lower.replace("_", "").to_uppercase();
                 let parts: Vec<_> = lower
-                    .split("_")
+                    .split('_')
                     .map(|x| x.split_at(1))
                     .map(|(a, o)| format!("{}{}", a.to_uppercase(), o))
                     .collect();
@@ -102,40 +92,32 @@ fn main() {
     typ.push('}');
     qtyp.push('}');
 
-    typ_impl.push_str(&format!(
-        r#"
+    typ_impl.push_str(&r#"
                     x => Err(Error::InvalidType(x as u16)),
-                }}
-            }}
-        }}
-    "#
-    ));
-    qtyp_impl.push_str(&format!(
-        r#"
+                }
+            }
+        }
+    "#.to_string());
+    qtyp_impl.push_str(&r#"
                     x => Err(Error::InvalidQueryType(x as u16)),
-                }}
-            }}
-        }}
-    "#
-    ));
+                }
+            }
+        }
+    "#.to_string());
 
-    rdata_impl.push_str(&format!(
-        r#"
-                }}
-            }}
-        }}
-    "#
-    ));
+    rdata_impl.push_str(&r#"
+                }
+            }
+        }
+    "#.to_string());
 
-    imports.push_str(&format!(
-        r#"
+    imports.push_str(&r#"
         mod config;
 
         pub use self::config::RData;
 
         use crate::Error;
-    "#
-    ));
+    "#.to_string());
 
     let dest_path = Path::new(&rdata_dir).join("mod.rs");
     let mut f = File::create(&dest_path).unwrap();

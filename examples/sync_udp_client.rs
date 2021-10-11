@@ -38,7 +38,7 @@ fn resolve(name: &str) -> Result<(), Box<dyn Error>> {
     if pkt.header.response_code != ResponseCode::NoError {
         return Err(pkt.header.response_code.into());
     }
-    if pkt.answers.len() == 0 {
+    if pkt.answers.is_empty() {
         return Err("No records received".into());
     }
     for ans in pkt.answers {
