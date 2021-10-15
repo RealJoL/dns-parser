@@ -1,6 +1,4 @@
-use std::i32;
-
-use byteorder::{BigEndian, ByteOrder};
+use std::convert::TryInto;
 
 use crate::rdata::opt::Record as Opt;
 use crate::{Class, RData, ResourceRecord, Type};
@@ -16,20 +14,21 @@ impl<'a> Packet<'a> {
         let mut offset = Header::size();
         let mut questions = Vec::with_capacity(header.questions as usize);
         for _ in 0..header.questions {
-            let name = Name::scan(&data[offset..], data)?;
-            offset += name.byte_len();
+            let qname = Name::scan(&data[offset..], data)?;
+            offset += qname.byte_len();
             if offset + 4 > data.len() {
                 return Err(Error::UnexpectedEOF);
             }
-            let qtype = QueryType::parse(BigEndian::read_u16(&data[offset..offset + 2]))?;
+            let buf: [u8; 2] = data[offset..offset + 2].try_into().unwrap();
+            let qtype = QueryType::parse(u16::from_be_bytes(buf))?;
             offset += 2;
 
-            let (prefer_unicast, qclass) =
-                parse_qclass_code(BigEndian::read_u16(&data[offset..offset + 2]))?;
+            let buf: [u8; 2] = data[offset..offset + 2].try_into().unwrap();
+            let (prefer_unicast, qclass) = parse_qclass_code(u16::from_be_bytes(buf))?;
             offset += 2;
 
             questions.push(Question {
-                qname: name,
+                qname,
                 qtype,
                 prefer_unicast,
                 qclass,
@@ -90,19 +89,21 @@ fn parse_record<'a>(data: &'a [u8], offset: &mut usize) -> Result<ResourceRecord
     if *offset + 10 > data.len() {
         return Err(Error::UnexpectedEOF);
     }
-    let typ = Type::parse(BigEndian::read_u16(&data[*offset..*offset + 2]))?;
+    let typ = Type::parse(u16::from_be_bytes(
+        data[*offset..*offset + 2].try_into().unwrap(),
+    ))?;
     *offset += 2;
 
-    let class_code = BigEndian::read_u16(&data[*offset..*offset + 2]);
+    let class_code = u16::from_be_bytes(data[*offset..*offset + 2].try_into().unwrap());
     let (multicast_unique, cls) = parse_class_code(class_code)?;
     *offset += 2;
 
-    let mut ttl = BigEndian::read_u32(&data[*offset..*offset + 4]);
+    let mut ttl = u32::from_be_bytes(data[*offset..*offset + 4].try_into().unwrap());
     if ttl > i32::MAX as u32 {
         ttl = 0;
     }
     *offset += 4;
-    let rdlen = BigEndian::read_u16(&data[*offset..*offset + 2]) as usize;
+    let rdlen = u16::from_be_bytes(data[*offset..*offset + 2].try_into().unwrap()) as usize;
     *offset += 2;
     if *offset + rdlen > data.len() {
         return Err(Error::UnexpectedEOF);
@@ -124,20 +125,22 @@ fn parse_opt_record<'a>(data: &'a [u8], offset: &mut usize) -> Result<Opt<'a>, E
         return Err(Error::UnexpectedEOF);
     }
     *offset += 1;
-    let typ = Type::parse(BigEndian::read_u16(&data[*offset..*offset + 2]))?;
+    let typ = Type::parse(u16::from_be_bytes(
+        data[*offset..*offset + 2].try_into().unwrap(),
+    ))?;
     if typ != Type::OPT {
         return Err(Error::InvalidType(typ as u16));
     }
     *offset += 2;
-    let udp = BigEndian::read_u16(&data[*offset..*offset + 2]);
+    let udp = u16::from_be_bytes(data[*offset..*offset + 2].try_into().unwrap());
     *offset += 2;
     let extrcode = data[*offset];
     *offset += 1;
     let version = data[*offset];
     *offset += 1;
-    let flags = BigEndian::read_u16(&data[*offset..*offset + 2]);
+    let flags = u16::from_be_bytes(data[*offset..*offset + 2].try_into().unwrap());
     *offset += 2;
-    let rdlen = BigEndian::read_u16(&data[*offset..*offset + 2]) as usize;
+    let rdlen = u16::from_be_bytes(data[*offset..*offset + 2].try_into().unwrap()) as usize;
     *offset += 2;
     if *offset + rdlen > data.len() {
         return Err(Error::UnexpectedEOF);

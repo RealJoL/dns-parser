@@ -1,3 +1,4 @@
+use std::convert::TryInto;
 use std::fmt;
 use std::fmt::Write;
 use std::iter::Peekable;
@@ -7,8 +8,6 @@ use std::str::from_utf8;
 // Deprecated since rustc 1.23
 #[allow(unused_imports, deprecated)]
 use std::ascii::AsciiExt;
-
-use byteorder::{BigEndian, ByteOrder};
 
 use crate::Error;
 
@@ -49,8 +48,8 @@ impl<'a> Name<'a> {
                 if parse_data.len() < pos + 2 {
                     return Err(Error::UnexpectedEOF);
                 }
-                let off = (BigEndian::read_u16(&parse_data[pos..pos + 2]) & !0b1100_0000_0000_0000)
-                    as usize;
+                let off = (u16::from_be_bytes(parse_data[pos..pos + 2].try_into().unwrap())
+                    & !0b1100_0000_0000_0000) as usize;
                 if off >= original.len() {
                     return Err(Error::UnexpectedEOF);
                 }
@@ -190,8 +189,8 @@ impl<'a> fmt::Display for Name<'a> {
             if byte == 0 {
                 return Ok(());
             } else if byte & 0b1100_0000 == 0b1100_0000 {
-                let off =
-                    (BigEndian::read_u16(&data[pos..pos + 2]) & !0b1100_0000_0000_0000) as usize;
+                let off = (u16::from_be_bytes(data[pos..pos + 2].try_into().unwrap())
+                    & !0b1100_0000_0000_0000) as usize;
                 if pos != 0 {
                     fmt.write_char('.')?;
                 }

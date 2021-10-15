@@ -1,4 +1,4 @@
-use byteorder::{BigEndian, ByteOrder, WriteBytesExt};
+use std::{convert::TryInto, io::Write};
 
 use crate::{Header, Opcode, QueryClass, QueryType, ResponseCode};
 
@@ -38,6 +38,7 @@ impl Builder {
         head.write(&mut buf[..12]);
         Builder { buf }
     }
+
     /// Adds a question to the packet
     ///
     /// # Panics
@@ -56,16 +57,16 @@ impl Builder {
             panic!("Too late to add a question");
         }
         self.write_name(qname);
-        self.buf.write_u16::<BigEndian>(qtype as u16).unwrap();
+        self.buf.extend((qtype as u16).to_be_bytes());
         let prefer_unicast: u16 = if prefer_unicast { 0x8000 } else { 0x0000 };
         self.buf
-            .write_u16::<BigEndian>(qclass as u16 | prefer_unicast)
+            .write_all(&(qclass as u16 | prefer_unicast).to_be_bytes())
             .unwrap();
-        let oldq = BigEndian::read_u16(&self.buf[4..6]);
+        let oldq = u16::from_be_bytes(self.buf[4..6].try_into().unwrap());
         if oldq == 65535 {
             panic!("Too many questions");
         }
-        BigEndian::write_u16(&mut self.buf[4..6], oldq + 1);
+        self.buf.splice(4..6, (oldq + 1).to_be_bytes());
         self
     }
     fn write_name(&mut self, name: &str) {
@@ -77,6 +78,7 @@ impl Builder {
         }
         self.buf.push(0);
     }
+
     /// Returns the final packet
     ///
     /// When packet is not truncated method returns `Ok(packet)`. If

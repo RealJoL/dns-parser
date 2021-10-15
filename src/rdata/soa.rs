@@ -1,5 +1,6 @@
 use crate::{Error, Name};
-use byteorder::{BigEndian, ByteOrder};
+
+use std::convert::TryInto;
 
 /// The SOA (Start of Authority) record
 #[derive(Debug, Clone, Copy)]
@@ -28,11 +29,11 @@ impl<'a> super::Record<'a> for Record<'a> {
         let record = Record {
             primary_ns: primary_name_server,
             mailbox,
-            serial: BigEndian::read_u32(&rdata[pos..(pos + 4)]),
-            refresh: BigEndian::read_u32(&rdata[(pos + 4)..(pos + 8)]),
-            retry: BigEndian::read_u32(&rdata[(pos + 8)..(pos + 12)]),
-            expire: BigEndian::read_u32(&rdata[(pos + 12)..(pos + 16)]),
-            minimum_ttl: BigEndian::read_u32(&rdata[(pos + 16)..(pos + 20)]),
+            serial: u32::from_be_bytes(rdata[pos..(pos + 4)].try_into().unwrap()),
+            refresh: u32::from_be_bytes(rdata[(pos + 4)..(pos + 8)].try_into().unwrap()),
+            retry: u32::from_be_bytes(rdata[(pos + 8)..(pos + 12)].try_into().unwrap()),
+            expire: u32::from_be_bytes(rdata[(pos + 12)..(pos + 16)].try_into().unwrap()),
+            minimum_ttl: u32::from_be_bytes(rdata[(pos + 16)..(pos + 20)].try_into().unwrap()),
         };
         Ok(super::RData::SOA(record))
     }
