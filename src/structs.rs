@@ -1,10 +1,9 @@
-use crate::{QueryType, QueryClass, Name, Class, Header, RData};
 use crate::rdata::opt;
-
+use crate::{Class, Header, Name, QueryClass, QueryType, RData};
 
 /// Parsed DNS packet
-#[derive(Debug)]
-#[allow(missing_docs)]  // should be covered by spec
+#[derive(Debug, PartialEq)]
+#[allow(missing_docs)] // should be covered by spec
 pub struct Packet<'a> {
     pub header: Header,
     pub questions: Vec<Question<'a>>,
@@ -20,8 +19,8 @@ pub struct Packet<'a> {
 }
 
 /// A parsed chunk of data in the Query section of the packet
-#[derive(Debug)]
-#[allow(missing_docs)]  // should be covered by spec
+#[derive(Debug, PartialEq)]
+#[allow(missing_docs)] // should be covered by spec
 pub struct Question<'a> {
     pub qname: Name<'a>,
     /// Whether or not we prefer unicast responses.
@@ -36,8 +35,8 @@ pub struct Question<'a> {
 /// We aim to provide whole range of DNS records available. But as time is
 /// limited we have some types of packets which are parsed and other provided
 /// as unparsed slice of bytes.
-#[derive(Debug)]
-#[allow(missing_docs)]  // should be covered by spec
+#[derive(Debug, PartialEq)]
+#[allow(missing_docs)] // should be covered by spec
 pub struct ResourceRecord<'a> {
     pub name: Name<'a>,
     /// Whether or not the set of resource records is fully contained in the

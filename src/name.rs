@@ -15,7 +15,7 @@ use crate::Error;
 ///
 /// This contains just a reference to a slice that contains the data.
 /// You may turn this into a string using `.to_string()`
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub struct Name<'a> {
     labels: &'a [u8],
     /// This is the original buffer size. The compressed names in original

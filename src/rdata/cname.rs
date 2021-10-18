@@ -1,7 +1,7 @@
 use crate::name::NameBytes;
 use crate::Name;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Record<'a>(pub Name<'a>);
 
 impl<'a> Record<'a> {

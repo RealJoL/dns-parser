@@ -1,6 +1,6 @@
 use crate::Name;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Record<'a>(pub Name<'a>);
 
 impl<'a> ToString for Record<'a> {
@@ -11,7 +11,6 @@ impl<'a> ToString for Record<'a> {
 }
 
 impl<'a> super::Record<'a> for Record<'a> {
-
     const TYPE: isize = 12;
 
     fn parse(rdata: &'a [u8], original: &'a [u8]) -> super::RDataResult<'a> {
@@ -24,13 +23,13 @@ impl<'a> super::Record<'a> for Record<'a> {
 #[cfg(test)]
 mod test {
 
-    use crate::{Packet, Header};
-    use crate::Opcode::*;
-    use crate::ResponseCode::NoError;
-    use crate::QueryType as QT;
-    use crate::QueryClass as QC;
     use crate::Class as C;
+    use crate::Opcode::*;
+    use crate::QueryClass as QC;
+    use crate::QueryType as QT;
     use crate::RData;
+    use crate::ResponseCode::NoError;
+    use crate::{Header, Packet};
 
     #[test]
     fn parse_response() {
@@ -40,28 +39,37 @@ mod test {
                            \xc0\x0c\x00\x0c\x00\x01\x00\x01\x51\x80\x00\x1e\
                            \x10pool-72-75-93-69\x07verizon\x03net\x00";
         let packet = Packet::parse(response).unwrap();
-        assert_eq!(packet.header, Header {
-            id: 21462,
-            query: false,
-            opcode: StandardQuery,
-            authoritative: false,
-            truncated: false,
-            recursion_desired: true,
-            recursion_available: true,
-            authenticated_data: false,
-            checking_disabled: false,
-            response_code: NoError,
-            questions: 1,
-            answers: 1,
-            nameservers: 0,
-            additional: 0,
-        });
+        assert_eq!(
+            packet.header,
+            Header {
+                id: 21462,
+                query: false,
+                opcode: StandardQuery,
+                authoritative: false,
+                truncated: false,
+                recursion_desired: true,
+                recursion_available: true,
+                authenticated_data: false,
+                checking_disabled: false,
+                response_code: NoError,
+                questions: 1,
+                answers: 1,
+                nameservers: 0,
+                additional: 0,
+            }
+        );
         assert_eq!(packet.questions.len(), 1);
         assert_eq!(packet.questions[0].qtype, QT::PTR);
         assert_eq!(packet.questions[0].qclass, QC::IN);
-        assert_eq!(&packet.questions[0].qname.to_string()[..], "69.93.75.72.in-addr.arpa");
+        assert_eq!(
+            &packet.questions[0].qname.to_string()[..],
+            "69.93.75.72.in-addr.arpa"
+        );
         assert_eq!(packet.answers.len(), 1);
-        assert_eq!(&packet.answers[0].name.to_string()[..], "69.93.75.72.in-addr.arpa");
+        assert_eq!(
+            &packet.answers[0].name.to_string()[..],
+            "69.93.75.72.in-addr.arpa"
+        );
         assert_eq!(packet.answers[0].cls, C::IN);
         assert_eq!(packet.answers[0].ttl, 86400);
         match packet.answers[0].data {

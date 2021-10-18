@@ -2,7 +2,7 @@ use crate::{Error, Name};
 
 use std::convert::TryInto;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Record<'a> {
     pub preference: u16,
     pub exchange: Name<'a>,

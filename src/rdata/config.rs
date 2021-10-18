@@ -1,7 +1,7 @@
 use crate::rdata::*;
 
 /// The enumeration that represents implemented types of DNS resource records data
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum RData<'a> {
     A(A),
     AAAA(Aaaa),

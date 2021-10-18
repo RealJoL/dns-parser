@@ -2,7 +2,7 @@ use crate::{Error, Name};
 
 use std::convert::TryInto;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Record<'a> {
     pub priority: u16,
     pub weight: u16,

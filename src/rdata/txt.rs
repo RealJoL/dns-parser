@@ -1,6 +1,6 @@
 use crate::Error;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Record<'a> {
     bytes: &'a [u8],
 }

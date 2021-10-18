@@ -1,4 +1,5 @@
 use crate::Error;
+use quick_error::quick_error;
 
 /// The CLASS value according to RFC 1035
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -71,7 +72,7 @@ impl From<u16> for Opcode {
 }
 impl From<Opcode> for u16 {
     fn from(o: Opcode) -> u16 {
-        use self::Opcode::*;
+        use Opcode::*;
         match o {
             StandardQuery => 0,
             InverseQuery => 1,
@@ -83,7 +84,7 @@ impl From<Opcode> for u16 {
 
 impl From<u8> for ResponseCode {
     fn from(code: u8) -> ResponseCode {
-        use self::ResponseCode::*;
+        use ResponseCode::*;
         match code {
             0 => NoError,
             1 => FormatError,
@@ -98,7 +99,7 @@ impl From<u8> for ResponseCode {
 }
 impl From<ResponseCode> for u8 {
     fn from(r: ResponseCode) -> u8 {
-        use self::ResponseCode::*;
+        use ResponseCode::*;
         match r {
             NoError => 0,
             FormatError => 1,
@@ -114,7 +115,7 @@ impl From<ResponseCode> for u8 {
 impl QueryClass {
     /// Parse a query class code
     pub fn parse(code: u16) -> Result<QueryClass, Error> {
-        use self::QueryClass::*;
+        use QueryClass::*;
         match code {
             1 => Ok(IN),
             2 => Ok(CS),
@@ -129,7 +130,7 @@ impl QueryClass {
 impl Class {
     /// Parse a class code
     pub fn parse(code: u16) -> Result<Class, Error> {
-        use self::Class::*;
+        use Class::*;
         match code {
             1 => Ok(IN),
             2 => Ok(CS),

@@ -3,7 +3,7 @@ use crate::{Error, Name};
 use std::convert::TryInto;
 
 /// The SOA (Start of Authority) record
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Record<'a> {
     pub primary_ns: Name<'a>,
     pub mailbox: Name<'a>,
