@@ -1,4 +1,4 @@
-extern crate dns_parser;
+
 
 use std::env;
 use std::error::Error;
@@ -26,7 +26,7 @@ fn main() {
     process::exit(code);
 }
 
-fn resolve(name: &str) -> Result<(), Box<Error>> {
+fn resolve(name: &str) -> Result<(), Box<dyn Error>> {
     let mut conn = TcpStream::connect("127.0.0.1:53")?;
     let mut builder = Builder::new_query(1, true);
     builder.add_question(name, false, QueryType::A, QueryClass::IN);
@@ -62,7 +62,7 @@ fn resolve(name: &str) -> Result<(), Box<Error>> {
     if pkt.header.response_code != ResponseCode::NoError {
         return Err(pkt.header.response_code.into());
     }
-    if pkt.answers.len() == 0 {
+    if pkt.answers.is_empty() {
         return Err("No records received".into());
     }
     for ans in pkt.answers {

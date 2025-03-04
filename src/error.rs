@@ -1,3 +1,4 @@
+use quick_error::quick_error;
 use std::str::Utf8Error;
 
 quick_error! {
@@ -51,7 +52,7 @@ quick_error! {
             display("class {} is invalid", code)
         }
         /// Invalid characters encountered while reading label
-        LabelIsNotAscii {
+        LabelIsNotUtf8 {
             description("invalid characters encountered while reading label")
         }
         /// Invalid characters encountered while reading TXT

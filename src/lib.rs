@@ -1,4 +1,4 @@
-#![recursion_limit="100"]
+#![recursion_limit = "100"]
 //! The network-agnostic DNS parser library
 //!
 //! [Documentation](https://docs.rs/dns-parser) |
@@ -15,25 +15,26 @@
 #![warn(missing_docs)]
 #![warn(missing_debug_implementations)]
 
-extern crate byteorder;
-#[cfg(test)] #[macro_use] extern crate matches;
-#[macro_use(quick_error)] extern crate quick_error;
-#[cfg(feature = "with-serde")] #[macro_use] extern crate serde_derive;
+#[cfg(test)]
+#[macro_use]
+extern crate matches;
 
+mod builder;
 mod enums;
-mod structs;
-mod name;
-mod parser;
 mod error;
 mod header;
-mod builder;
+mod name;
+mod parser;
+mod structs;
 
+/// Data types and methods for handling the RData field
+#[allow(missing_docs)] // resource records are pretty self-descriptive
 pub mod rdata;
 
-pub use enums::{Type, QueryType, Class, QueryClass, ResponseCode, Opcode};
-pub use structs::{Question, ResourceRecord, Packet};
-pub use name::{Name};
-pub use error::{Error};
-pub use header::{Header};
-pub use rdata::{RData};
-pub use builder::{Builder};
+pub use crate::builder::Builder;
+pub use crate::enums::{Class, Opcode, QueryClass, ResponseCode};
+pub use crate::error::Error;
+pub use crate::header::Header;
+pub use crate::name::Name;
+pub use crate::rdata::{QueryType, RData, Type};
+pub use crate::structs::{Packet, Question, ResourceRecord};
